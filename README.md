@@ -38,56 +38,22 @@ for each wear category.</p>
 </p>
 
 ### Program:
-### IMPLEMENTATION OF GSP
-```python
-from collections import defaultdict
-from itertools import combinations
+### TO CONVERT DATASET INTO CSV FILE
+```Python
+import csv
 
-# Function to generate candidate k-item sequences
-def generate_candidates(dataset, k):
-    candidate_count = defaultdict(int)
-
-    for sequence in dataset:
-        for itemset in combinations(sequence, k):
-            candidate_count[itemset] += 1
-
-    return candidate_count
-
-# Function to perform GSP algorithm
-def gsp(dataset, min_support):
-    # Step 1: Initialize the frequent patterns dictionary
-    frequent_patterns = defaultdict(int)
-
-    # Step 2: Generate frequent 1-item sequences
-    k = 1
-    candidate_count = generate_candidates(dataset, k)
-
-    # Step 3: Prune and update frequent patterns
-    frequent_patterns.update({itemset: count for itemset, count in candidate_count.items() if count >= min_support})
-
-    # Step 4: Generate frequent k-item sequences until no more can be generated
-    while candidate_count:
-        k += 1
-        candidate_count = generate_candidates(dataset, k)
-
-        # Prune and update frequent patterns
-        frequent_patterns.update({itemset: count for itemset, count in candidate_count.items() if count >= min_support})
-
-    return frequent_patterns
-
-# Example dataset for each category
 top_wear_data = [
     ["blouse", "t-shirt", "tank_top"],
     ["hoodie", "sweater", "top"],
     ["hoodie"],
     ["hoodie", "sweater"]
-   
 ]
+
 bottom_wear_data = [
     ["jeans", "trousers", "shorts"],
-    ["leggings", "skirt", "chinos"],
-   
+    ["leggings", "skirt", "chinos"]
 ]
+
 party_wear_data = [
     ["Dress", "High Heels", "Clutch"],
     ["Suit", "Tie", "Leather Shoes", "Watch"],
@@ -95,35 +61,91 @@ party_wear_data = [
     ["Tuxedo", "Bow Tie", "Formal Shoes"],
     ["Gown", "Bracelet", "Sandals"],
     ["Party Shirt", "Jeans", "Casual Shoes"],
-    ["Party Shirt", "Jeans"],
-    
+    ["Party Shirt", "Jeans"]
 ]
-# Minimum support threshold
-min_support = 2
-# Perform GSP algorithm for each category
-top_wear_result = gsp(top_wear_data, min_support)
-bottom_wear_result = gsp(bottom_wear_data, min_support)
-party_wear_result = gsp(party_wear_data, min_support)
-# Output the frequent sequential patterns for each category
-print("Frequent Sequential Patterns - Top Wear:")
-if top_wear_result:
-    for pattern, support in top_wear_result.items():
-        print(f"Pattern: {pattern}, Support: {support}")
-else:
-    print("No frequent sequential patterns found in Top Wear.")
-print("\nFrequent Sequential Patterns - Bottom Wear:")
-if bottom_wear_result:
-    for pattern, support in bottom_wear_result.items():
-        print(f"Pattern: {pattern}, Support: {support}")
-else:
-    print("No frequent sequential patterns found in Bottom Wear.")
-print("\nFrequent Sequential Patterns - Party Wear:")
-if party_wear_result:
-    for pattern, support in party_wear_result.items():
-        print(f"Pattern: {pattern}, Support: {support}")
-else:
-    print("No frequent sequential patterns found in Party Wear.")
+
+# Specify the file name
+csv_file = "fashion_data.csv"
+
+# Combine all data into a single list
+all_data = top_wear_data + bottom_wear_data + party_wear_data
+
+# Write data to CSV file
+with open(csv_file, 'w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerows(all_data)
+
+print(f"CSV file '{csv_file}' created successfully.")
+
 ```
+### IMPLEMENTATION OF GSP
+```python
+import csv
+from collections import defaultdict
+
+def generate_candidates(dataset, length):
+    candidates = set()
+    for sequence in dataset:
+        for i in range(len(sequence) - length + 1):
+            candidates.add(tuple(sequence[i:i + length]))
+    return candidates
+
+def generate_frequent_patterns(dataset, candidates, min_support):
+    item_counts = defaultdict(int)
+    for candidate in candidates:
+        for sequence in dataset:
+            if set(candidate).issubset(sequence):
+                item_counts[candidate] += 1
+
+    frequent_patterns = {item: count for item, count in item_counts.items() if count >= min_support}
+    return frequent_patterns
+
+def generate_next_candidates(prev_candidates, length):
+    candidates = set()
+    for p1 in prev_candidates:
+        for p2 in prev_candidates:
+            if p1[:-1] == p2[:-1] and p1[-1] < p2[-1]:
+                candidates.add(p1 + (p2[-1],))
+    return candidates
+
+def gsp(dataset, min_support):
+    length = 1
+    candidates = set()
+    frequent_patterns = {}
+
+    while True:
+        current_candidates = generate_candidates(dataset, length)
+        current_frequent_patterns = generate_frequent_patterns(dataset, current_candidates, min_support)
+
+        if not current_frequent_patterns:
+            break
+
+        frequent_patterns.update(current_frequent_patterns)
+        candidates = generate_next_candidates(current_candidates, length)
+        length += 1
+
+    return frequent_patterns
+
+# Read dataset from CSV file
+csv_file_path = "fashion_data.csv"
+fashion_data = []
+with open(csv_file_path, 'r') as csv_file:
+    csv_reader = csv.reader(csv_file)
+    for row in csv_reader:
+        fashion_data.append(row)
+
+# Set the minimum support threshold
+min_support = 2
+
+# Run GSP algorithm
+result = gsp(fashion_data, min_support)
+
+# Display the results
+print("Frequent Patterns:")
+for pattern, support in result.items():
+    print(f"{pattern}: {support}")
+```
+
 #### VISUALIZATION
 ```python
 import matplotlib.pyplot as plt
