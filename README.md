@@ -38,7 +38,7 @@ for each wear category.</p>
 </p>
 
 ### Program:
-### TO CONVERT DATASET INTO CSV FILE
+#### TO CONVERT DATASET INTO CSV FILE
 ```Python
 import csv
 
@@ -173,11 +173,11 @@ visualize_patterns_line(bottom_wear_result, 'Bottom Wear')
 visualize_patterns_line(party_wear_result, 'Party Wear')
 ```
 ### Output:
-### GSP ALGORITHM
-<img width="493" alt="image" src="https://github.com/Shavedha/WDM_EXP3/assets/93427376/88f69499-1c55-4d73-9504-ec4fd9b49fbf">
+#### GSP ALGORITHM
+<img width="228" alt="image" src="https://github.com/Shavedha/WDM_EXP3/assets/93427376/38eb8276-4533-4e48-8426-d53293ee5f4e">
 
 
-### VISUALIZATION
+#### VISUALIZATION
 <img width="692" alt="image" src="https://github.com/Shavedha/WDM_EXP3/assets/93427376/a0843dd3-e0d5-4603-a738-8e1340119a2f">
 
 
